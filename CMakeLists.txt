@@ -70,13 +70,14 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/Modules")
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 find_package(SteamworksSDK REQUIRED)
-find_package(SDL3)
+find_package(SDL3 REQUIRED)
 find_package(SDL3_image REQUIRED)
 find_package(Vulkan REQUIRED)
 find_package(VulkanMemoryAllocator REQUIRED)
 find_package(VulkanMemoryAllocator-Hpp REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets QuickControls2)
+find_package(Win32xx REQUIRED)
 
 # Global options
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
