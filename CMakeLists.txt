@@ -76,8 +76,8 @@ find_package(Vulkan REQUIRED)
 find_package(VulkanMemoryAllocator REQUIRED)
 find_package(VulkanMemoryAllocator-Hpp REQUIRED)
 find_package(OpenSSL REQUIRED)
-find_package(Qt6 6.9.1 EXACT REQUIRED COMPONENTS Core Widgets QuickControls2)
 find_package(Win32xx REQUIRED)
+find_package(Qt6 6.9.1 EXACT REQUIRED COMPONENTS Core Widgets QuickControls2)
 find_package(wxWidgets 3.3.0 EXACT REQUIRED)
 
 # Global options

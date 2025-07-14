@@ -375,21 +375,6 @@ def main():
                 "-DSDLIMAGE_XCF=OFF", "-DSDLIMAGE_XPM=OFF",
                 "-DSDLIMAGE_XV=OFF", "-DSDLIMAGE_WEBP=OFF"
             ]
-        ),
-        CMakeLibrary(
-            source_subdir="wxWidgets",
-            install_subdir="wxWidgets",
-            cmake_args=[
-                "-DwxBUILD_CXX_STANDARD=23",
-                "-DwxUSE_UNICODE_UTF8=ON",
-                "-DwxBUILD_USE_STATIC_RUNTIME=ON",
-                "-DwxUSE_STD_IOSTREAM=OFF",
-                "-DwxBUILD_OPTIMISE=ON",
-                "-DwxBUILD_STRIPPED_RELEASE=OFF",
-                "-DwxBUILD_DEBUG_LEVEL=0",
-                "-DwxUSE_WEBVIEW=OFF",
-            ],
-            build_folder="cmake_build"
         )
     ]
 
