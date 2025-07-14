@@ -31,3 +31,6 @@
 [submodule "libs/sources/VulkanMemoryAllocator-Hpp"]
 	path = libs/sources/VulkanMemoryAllocator-Hpp
 	url = https://github.com/YaaZ/VulkanMemoryAllocator-Hpp.git
+[submodule "libs/sources/wxWidgets"]
+	path = libs/sources/wxWidgets
+	url = https://github.com/wxWidgets/wxWidgets.git
