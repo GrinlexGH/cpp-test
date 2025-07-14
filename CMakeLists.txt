@@ -78,7 +78,7 @@ find_package(VulkanMemoryAllocator-Hpp REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(Win32xx REQUIRED)
 find_package(Qt6 6.9.1 EXACT REQUIRED COMPONENTS Core Widgets QuickControls2)
-find_package(wxWidgets 3.3.0 EXACT REQUIRED)
+find_package(wxWidgets 3.3 EXACT COMPONENTS core base REQUIRED)
 
 # Global options
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
