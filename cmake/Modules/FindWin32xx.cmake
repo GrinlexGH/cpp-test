@@ -1,22 +1,39 @@
+# Author: Grinlex
+# Imported targets:
+# ``Win32xx::Win32xx``
+#
+# Result variables:
+# ``Win32xx_FOUND``
+# ``Win32xx_INCLUDE_DIR``
+#
+# Searches for such folder structure:
+# Win32xx/
+# └── include
+#     ├── ...
+#     ├── wxx_appcore.h
+#     └── ...
+
 include(FindPackageHandleStandardArgs)
 
-if(NOT Win32xx_FOUND)
-    find_path(
-        Win32xx_INCLUDE_DIR
+find_path(Win32xx_INCLUDE_DIR
+    NAMES
         wxx_appcore.h
-        PATH_SUFFIXES
-        Win32xx/include/
-    )
+    PATH_SUFFIXES
+        include
+        Win32xx/include
+)
 
+if(Win32xx_INCLUDE_DIR AND NOT TARGET Win32xx::Win32xx)
     add_library(Win32xx::Win32xx INTERFACE IMPORTED)
-
     set_target_properties(Win32xx::Win32xx PROPERTIES
         INTERFACE_INCLUDE_DIRECTORIES "${Win32xx_INCLUDE_DIR}"
     )
+endif()
 
-    #-----------------------------------------
+find_package_handle_standard_args(Win32xx DEFAULT_MSG
+    Win32xx_INCLUDE_DIR
+)
 
-    find_package_handle_standard_args(Win32xx DEFAULT_MSG
-        Win32xx_INCLUDE_DIR
-    )
+if(Win32xx_FOUND)
+    mark_as_advanced(Win32xx_INCLUDE_DIR)
 endif()

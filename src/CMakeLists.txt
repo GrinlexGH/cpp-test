@@ -6,6 +6,7 @@ set(PROJECTS
 if(WIN32)
     list(APPEND PROJECTS
         visual_styles
+        win32xx
     )
 endif()
 
