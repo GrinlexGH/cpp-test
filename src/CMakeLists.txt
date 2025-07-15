@@ -1,6 +1,7 @@
 set(PROJECTS
     locales
     bitfields
+    fast
 )
 
 if(WIN32)
