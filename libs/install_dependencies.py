@@ -1,6 +1,7 @@
 # Author: Grinlex
 
 import argparse
+import os
 import platform
 import re
 import shlex
@@ -75,7 +76,26 @@ def check_git_hash_match(source_dir: Path, hash_file: Path) -> bool:
 # ========================================================================================
 # region ====== CMake libraries building and installation ================================
 
-def build_and_install_cmake_library(source_dir_base: Path, install_dir_base: Path, extra_cmake_flags: list[str] = [], build_folder: Path = "build") -> None:
+# For parallel work of this script we need to lock the build dir
+def acquire_lock(lock_file: Path):
+    lock_file.parent.mkdir(parents=True, exist_ok=True)
+    f = open(lock_file, "w")
+
+    try:
+        if os.name == "nt":
+            import msvcrt
+            msvcrt.locking(f.fileno(), msvcrt.LK_NBLCK, 1)
+        else:
+            import fcntl
+            fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        return f
+    except (OSError, BlockingIOError):
+        f.close()
+        return None
+
+def build_and_install_cmake_library(source_dir_base: Path, install_dir_base: Path, extra_cmake_flags=None, build_folder: Path = "build") -> None:
+    if extra_cmake_flags is None:
+        extra_cmake_flags = []
     global SOURCES_ROOT, INSTALL_ROOT, CMAKE, CMAKE_GLOBAL_ARGS, CMAKE_PERSUBMODULE_ARGS
 
     lib_name = source_dir_base.name
@@ -89,10 +109,28 @@ def build_and_install_cmake_library(source_dir_base: Path, install_dir_base: Pat
 
     log(f"Compiling [{lib_name}]...")
 
+    # Prepare build dir to allow multiple instance of this script at one time
     build_dir = source_dir / build_folder
-    if build_dir.exists():
-        shutil.rmtree(build_dir)
-    build_dir.mkdir(parents=True, exist_ok=True)
+    n = 0
+    lock = None
+
+    while True:
+        lock_file = build_dir / ".lock"
+        lock = acquire_lock(lock_file)
+        if lock is not None:
+            # Delete all files and folders except .lock file
+            for item in build_dir.iterdir():
+                if item.name == lock_file.name:
+                    continue
+                if item.is_file() or item.is_symlink():
+                    item.unlink()
+                elif item.is_dir():
+                    shutil.rmtree(item)
+            break
+        else:
+            # Use build-{n} folder instead
+            n += 1
+            build_dir = source_dir / f"{build_folder}-{n}"
 
     submodule_args = CMAKE_PERSUBMODULE_ARGS.get(source_dir.name, [])
 
@@ -109,6 +147,9 @@ def build_and_install_cmake_library(source_dir_base: Path, install_dir_base: Pat
 
     build_cmd = [CMAKE, "--build", ".", "--config", "Release", "--parallel"]
     subprocess.run(build_cmd, cwd=build_dir, check=True)
+
+    lock.close() # Unlock the build folder
+
     log(f"[{lib_name}] successfully built.", LogLevel.Success)
 
     if install_dir.exists():
@@ -134,13 +175,18 @@ def build_and_install_cmake_library(source_dir_base: Path, install_dir_base: Pat
 
 def split_pattern(pattern: str) -> tuple[Path, str]:
     """
-    Splits pattern on (fixed_prefix, sub_pattern):
-    e.g. "redistributable_bin/**/*.dll" -> (Path("redistributable_bin"), "**/*.dll")
+    Splits a path pattern into a fixed prefix and a wildcard sub-pattern.
+    `fixed_prefix` is the path up to (but not including) the first part containing a wildcard (*, ?, [).
+    `sub_pattern` is the remaining part of the path starting from the first wildcard.
+
+    Example:
+    `"redistributable_bin/**/*.dll"` ->
+    `(Path("redistributable_bin"), "**/*.dll")`
     """
     parts = Path(pattern).parts
     for i, part in enumerate(parts):
         if any(ch in part for ch in ("*", "?", "[")):
-            fixed = Path(*parts[:i]) if i > 0 else Path()
+            fixed = Path(*parts[:i])
             sub = "/".join(parts[i:])
             return fixed, sub
     return Path(*parts), ""
@@ -168,7 +214,7 @@ def install_manual_install_library(source_dir_base: Path, install_dir_base: Path
             log(f"Pattern base path not found: {glob_root}", LogLevel.Warning)
             continue
 
-        search_pattern = str(glob_root / sub_pattern) if sub_pattern else str(glob_root)
+        search_pattern = str(glob_root / sub_pattern)
         matches = glob(search_pattern, recursive=True)
 
         for full_path in matches:
@@ -189,7 +235,6 @@ def install_manual_install_library(source_dir_base: Path, install_dir_base: Path
             if full_path.is_file():
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(full_path, target)
-
             elif full_path.is_dir():
                 shutil.copytree(full_path, target, dirs_exist_ok=True)
 
@@ -270,7 +315,7 @@ def install_header_libraries(header_libraries: List[HeaderLibrary]):
 
         install_header_library(Path(lib.source_subdir), Path(lib.install_subdir), lib.paths)
 
-def install_manual_install_libraries(manual_install_libraries: ManualInstallLibrary):
+def install_manual_install_libraries(manual_install_libraries: list[ManualInstallLibrary]):
     for lib in manual_install_libraries:
         if skip_if_missing(lib.source_subdir):
             continue
@@ -352,14 +397,22 @@ def main():
     # region ===== Build and install libraries with CMake =====
     cmake_libraries: List[CMakeLibrary] = [
         CMakeLibrary(
+            source_subdir="VulkanMemoryAllocator-Hpp/Vulkan-Headers",
+            install_subdir="VulkanHeaders",
+            cmake_args=[
+                "-DVULKAN_HEADERS_ENABLE_TESTS=OFF",
+                "-DVULKAN-HEADERS_ENABLE_MODULE=ON"
+            ]
+        ),
+        CMakeLibrary(
             source_subdir="VulkanMemoryAllocator-Hpp/VulkanMemoryAllocator",
             install_subdir="VulkanMemoryAllocator",
-            cmake_args=["-DVMA_BUILD_DOCUMENTATION=OFF", "-DVMA_BUILD_SAMPLES=OFF"]
+            cmake_args=["-DVMA_BUILD_DOCUMENTATION=OFF", "-DVMA_BUILD_SAMPLES=OFF", "-DVMA_ENABLE_INSTALL=ON"]
         ),
         CMakeLibrary(
             source_subdir="VulkanMemoryAllocator-Hpp",
             install_subdir="VulkanMemoryAllocator-Hpp",
-            cmake_args=["-DVMA_HPP_ENABLE_INSTALL=ON", "-DVMA_BUILD_EXAMPLE=OFF"]
+            cmake_args=["-DVMA_HPP_ENABLE_INSTALL=ON"]
         ),
         CMakeLibrary(
             source_subdir="SDL",
@@ -391,7 +444,7 @@ def main():
         HeaderLibrary(
             source_subdir="simple_term_colors",
             install_subdir="",
-            paths=["include/*"]
+            paths=["include/stc.hpp"]
         )
     ]
 
@@ -403,6 +456,10 @@ def main():
         ManualInstallLibrary(
             source_subdir="SteamworksSDK",
             install_subdir="SteamworksSDK",
+            # Copies all files with saving relative paths
+            # starting with first folder in ** pattern
+            # So for rule ("redistributable_bin/**/*.dll",   "bin"),
+            # redistributable_bin/linux64/libsteam_api.so -> bin/linux64/libsteam_api.so
             rules=[
                 ("redistributable_bin/**/*.dll",   "bin"),
                 ("public/steam/lib/**/*.dll",      "bin"),

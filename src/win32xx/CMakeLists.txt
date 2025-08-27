@@ -10,12 +10,13 @@ set(SOURCES
     resource.rc
     res/main.manifest
 )
+if(WIN32 AND TARGET Win32xx::Win32xx)
+    add_executable_(${CURRENT_TARGET_NAME} WIN32 ${SOURCES})
 
-add_executable_(${CURRENT_TARGET_NAME} WIN32 ${SOURCES})
+    target_precompile_headers(${CURRENT_TARGET_NAME} PRIVATE stdafx.h)
 
-target_precompile_headers(${CURRENT_TARGET_NAME} PRIVATE stdafx.h)
-
-target_link_libraries(${CURRENT_TARGET_NAME} PRIVATE
-    Comctl32
-    Win32xx::Win32xx
-)
+    target_link_libraries(${CURRENT_TARGET_NAME} PRIVATE
+        Comctl32
+        Win32xx::Win32xx
+    )
+endif()

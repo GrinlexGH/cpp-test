@@ -4,11 +4,12 @@ set(PROJECTS
     fast
 )
 
-if(WIN32)
-    list(APPEND PROJECTS
-        visual_styles
-        win32xx
-    )
+if(WIN32 AND TARGET SDL3::SDL3 AND TARGET Qt6::Core AND TARGET Qt6::Widgets AND TARGET nowide::nowide)
+    list(APPEND PROJECTS visual_styles)
+endif()
+
+if(WIN32 AND TARGET Win32xx::Win32xx)
+    list(APPEND PROJECTS win32xx)
 endif()
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
