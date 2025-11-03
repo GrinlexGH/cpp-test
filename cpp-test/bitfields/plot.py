@@ -1,67 +1,62 @@
-import subprocess
 import json
+import pandas as pd
 import matplotlib.pyplot as plt
-import sys
 import os
 
-EXECUTABLE = "../../build/win32-x64-GCC/.output/Release/bitfields.exe"
-JSON_FILE = "benchmark.json"
-PNG_FILE = "benchmark_plot.png"
+def plot_benchmark_data(json_file_path):
+    try:
+        with open(json_file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        print(f"Error: could not find '{json_file_path}'.")
+        return
+    except json.JSONDecodeError:
+        print(f"Error: could not decode JSON from file '{json_file_path}'.")
+        return
+    except Exception as e:
+        print(f"Unexcepcted error: {e}")
+        return
 
-if len(sys.argv) > 1:
-    EXECUTABLE = sys.argv[1]
+    df = pd.DataFrame(data['benchmarks'])
 
-if not os.path.isfile(EXECUTABLE):
-    print(f"Executable not found: {EXECUTABLE}")
-    sys.exit(1)
+    df_mean = df[df['aggregate_name'] == 'mean'].copy()
 
-try:
-    print(f"Executing: {EXECUTABLE}")
-    result = subprocess.run([EXECUTABLE, "--benchmark_format=json"], capture_output=True, text=True, check=True)
-except subprocess.CalledProcessError as e:
-    print("Error while running benchmark:")
-    print(e.stderr)
-    sys.exit(1)
+    if df_mean.empty:
+        print("Error: could not find record with 'aggregate_name' == 'mean'.")
+        return
 
-try:
-    with open(JSON_FILE, "w") as f:
-        f.write(result.stdout)
-    data = json.loads(result.stdout)
-except Exception as e:
-    print("Error while JSON parsing:")
-    print(e)
-    sys.exit(1)
+    df_mean['simple_name'] = df_mean['name'].apply(
+        lambda x: x.split('/')[0].replace('BM_', '')
+    )
 
-benchmarks = data.get("benchmarks", [])
-entries = []
+    names = df_mean['simple_name']
+    times = df_mean['real_time']
 
-for b in benchmarks:
-    if b.get("run_type") == "aggregate" and b.get("name", "").endswith("_mean"):
-        base_name = b["name"].replace("_mean", "")
-        struct_name = base_name.split("<")[1].split(">")[0] if "<" in base_name else base_name
-        real_time = b["real_time"]
+    time_unit = df_mean['time_unit'].iloc[0]
 
-        stddev = next(
-            (x["real_time"] for x in benchmarks if x["name"] == f"{base_name}_stddev"),
-            0.0
-        )
-        entries.append((struct_name, real_time, stddev))
+    plt.figure(figsize=(10, 6))
 
-if not entries:
-    print("There is no aggregate fields in JSON. Make sure you use ->Repetitions(N)->ReportAggregatesOnly(true).")
-    sys.exit(1)
+    bars = plt.bar(names, times, color=['#007ACC', '#FFB900', '#E83E8C'])
 
-labels, times, stddevs = zip(*entries)
-plt.figure(figsize=(8, 5))
-bars = plt.bar(labels, times, yerr=stddevs, capsize=6, color=["#2980b9", "#c0392b", "#27ae60"])
+    plt.bar_label(bars, fmt='%.2f')
 
-plt.ylabel("Time (ms)")
-plt.title("Bitfields performance comparison")
-plt.grid(axis="y", linestyle="--", alpha=0.6)
-plt.tight_layout()
+    plt.xlabel('Structure type', fontsize=12)
+    plt.ylabel(f'Average real time ({time_unit})', fontsize=12)
+    plt.title('Bitfields test', fontsize=14, fontweight='bold')
 
-for bar, t in zip(bars, times):
-    plt.text(bar.get_x() + bar.get_width() / 2, t, f"{t:.1f}", ha="center", va="bottom")
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
 
-plt.savefig(PNG_FILE, format="png")
-print(f"Figure saved: {PNG_FILE}")
+    plt.tight_layout()
+
+    output_filename = 'benchmark_plot.png'
+    plt.savefig(output_filename)
+
+    print(f"Graph successfully saved to {output_filename}")
+
+    plt.show()
+
+if __name__ == "__main__":
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    json_path = os.path.join(script_dir, "benchmark.json")
+
+    plot_benchmark_data(json_path)

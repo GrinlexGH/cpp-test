@@ -1,16 +1,26 @@
 set(PROJECTS
-    locales
     bitfields
     fast
+    locales
+    visual_styles
+    win32xx
 )
 
-if(WIN32 AND TARGET SDL3::SDL3 AND TARGET Qt6::Core AND TARGET Qt6::Widgets AND TARGET nowide::nowide)
-    list(APPEND PROJECTS visual_styles)
-endif()
+set(ROOT_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/.output/$<CONFIG>)
+set(BIN_OUTPUT_DIRECTORY ${ROOT_OUTPUT_DIRECTORY}/bin)
+set(LIB_OUTPUT_DIRECTORY ${ROOT_OUTPUT_DIRECTORY}/lib)
+set(SHADER_OUTPUT_DIRECTORY ${ROOT_OUTPUT_DIRECTORY}/shaders)
 
-if(WIN32 AND TARGET Win32xx::Win32xx)
-    list(APPEND PROJECTS win32xx)
-endif()
+set(CMAKE_PDB_OUTPUT_DIRECTORY ${SKYLABS_BIN_OUTPUT_DIRECTORY})
+set(CMAKE_COMPILE_PDB_OUTPUT_DIRECTORY ${SKYLABS_BIN_OUTPUT_DIRECTORY})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${SKYLABS_BIN_OUTPUT_DIRECTORY})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${SKYLABS_BIN_OUTPUT_DIRECTORY})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${SKYLABS_LIB_OUTPUT_DIRECTORY})
+
+set(CMAKE_SKIP_RPATH FALSE)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
+set(CMAKE_INSTALL_RPATH "$ORIGIN")
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
@@ -20,31 +30,25 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(ROOT_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/.output/$<CONFIG>/)
-set(DLLS_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/.output/$<CONFIG>/bin)
-set(LIBS_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/.output/$<CONFIG>/libs)
-set(SHADER_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/.output/$<CONFIG>/shaders)
-
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+# Warnings
+if(IS_GNU_LIKE)
     add_compile_options(
         "-Wall" "-Wextra" "-Wpedantic"
         #"$<$<CONFIG:Release>:-Werror>"
-        "$<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>>:-O3>"
-        "-march=native" "-mtune=native"
-        "-masm=intel"
     )
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+elseif(IS_MSVC_LIKE)
     add_compile_options(
-        "/W4" "/utf-8" "/Zc:__cplusplus" "/MP"
-        "$<$<CONFIG:Release>:/WX;/Ox>"
+        "/W4"
+        #"$<$<CONFIG:Release>:/WX>"
     )
 endif()
 
+# All global macros
 add_compile_definitions(
     NOMINMAX
-    $<$<CONFIG:Debug>:DEBUG>
-    $<$<CONFIG:RelWithDebInfo>:DEBUG>
+    $<$<CONFIG:Debug>:DEBUG> $<$<CONFIG:RelWithDebInfo>:DEBUG>
     VULKAN_HPP_DISPATCH_LOADER_DYNAMIC=1
+    VULKAN_HPP_TYPESAFE_CONVERSION=1
     VMA_STATIC_VULKAN_FUNCTIONS=0
     VMA_DYNAMIC_VULKAN_FUNCTIONS=0
 )
@@ -57,10 +61,7 @@ include(cpp-test/ProjectBase)
 
 foreach(PROJECT ${PROJECTS})
     add_subdirectory("${PROJECT}")
-endforeach()
-
-if(WIN32)
-    foreach(PROJECT ${PROJECTS})
+    if((TARGET ${PROJECT}) AND WIN32)
         set_target_properties(${PROJECT} PROPERTIES PREFIX "")
-    endforeach()
-endif()
+    endif()
+endforeach()

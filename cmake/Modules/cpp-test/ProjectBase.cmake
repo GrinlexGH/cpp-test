@@ -12,18 +12,10 @@ function(add_executable_)
         add_executable(${NAME} ${SOURCES})
     endif()
 
-    foreach(FILE IN LISTS SOURCES)
-        get_filename_component(SOURCE_PATH "${FILE}" PATH)
-        string(REPLACE "/" "\\" SOURCE_PATH_GROUP "${SOURCE_PATH}")
-        source_group("Source Files\\${SOURCE_PATH_GROUP}" FILES "${FILE}")
+    foreach(source IN LISTS SOURCES)
+        cmake_path(GET source PARENT_PATH source_directory)
+        source_group("Source Files/${source_directory}" FILES "${source}")
     endforeach()
-
-    set_target_properties(${NAME}
-        PROPERTIES
-        ARCHIVE_OUTPUT_DIRECTORY ${LIBS_OUTPUT_DIRECTORY}/
-        RUNTIME_OUTPUT_DIRECTORY ${ROOT_OUTPUT_DIRECTORY}/
-        LIBRARY_OUTPUT_DIRECTORY ${DLLS_OUTPUT_DIRECTORY}/
-    )
 
     set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${NAME})
 endfunction()

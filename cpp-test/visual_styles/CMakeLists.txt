@@ -1,11 +1,11 @@
-set(CURRENT_TARGET_NAME visual_styles)
+if(WIN32 AND TARGET Qt6::Core AND TARGET Qt6::Widgets)
+    set(CURRENT_TARGET_NAME visual_styles)
 
-set(SOURCES
-    main.cpp
-    visual_styles.manifest
-)
+    set(SOURCES
+        main.cpp
+        visual_styles.manifest
+    )
 
-if(WIN32 AND TARGET SDL3::SDL3 AND TARGET Qt6::Core AND TARGET Qt6::Widgets AND TARGET nowide::nowide)
     add_executable_(${CURRENT_TARGET_NAME} WIN32 ${SOURCES})
 
     target_link_libraries(${CURRENT_TARGET_NAME} PRIVATE
