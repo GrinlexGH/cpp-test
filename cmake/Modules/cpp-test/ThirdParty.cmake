@@ -87,4 +87,4 @@ add_subdirectory(third_party/src/benchmark EXCLUDE_FROM_ALL SYSTEM)
 set_target_properties(benchmark benchmark_main PROPERTIES FOLDER "third_party")
 
 add_subdirectory(third_party/src/googletest EXCLUDE_FROM_ALL SYSTEM)
-set_target_properties(gtest gtest_main PROPERTIES FOLDER "third_party")
+set_target_properties(gtest gtest_main gmock gmock_main PROPERTIES FOLDER "third_party")
