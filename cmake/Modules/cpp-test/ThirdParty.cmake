@@ -10,9 +10,6 @@ endif()
 
 # Compilation of libraries
 deps_add_cmake_project(
-    "googletest"
-)
-deps_add_cmake_project(
     "VulkanMemoryAllocator-Hpp/Vulkan-Headers" INSTALL_SUBDIR "VulkanHeaders"
     CMAKE_ARGS
     "-DVULKAN_HEADERS_ENABLE_TESTS=OFF -DVULKAN_HEADERS_ENABLE_INSTALL=ON"
@@ -88,4 +85,5 @@ set(BENCHMARK_INSTALL_DOCS OFF)
 add_subdirectory(third_party/src/benchmark EXCLUDE_FROM_ALL SYSTEM)
 set_target_properties(benchmark benchmark_main PROPERTIES FOLDER "third_party")
 
-
+add_subdirectory(third_party/src/googletest EXCLUDE_FROM_ALL SYSTEM)
+set_target_properties(gtest gtest_main PROPERTIES FOLDER "third_party")

@@ -53,7 +53,7 @@ if(WIN32)
     add_compile_definitions(VK_USE_PLATFORM_WIN32_KHR)
 endif()
 
-include(ProjectBase)
+include(cpp-test/ProjectBase)
 
 foreach(PROJECT ${PROJECTS})
     add_subdirectory("${PROJECT}")

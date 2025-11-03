@@ -305,7 +305,7 @@ function(deps_build_all)
     endif()
 
     cmake_path(GET DEPS_SCRIPT_PATH PARENT_PATH _script_dir)
-    message("${DEPS_INSTALL_CMD}")
+
     execute_process(
         COMMAND ${DEPS_INSTALL_CMD}
         WORKING_DIRECTORY ${_script_dir}
