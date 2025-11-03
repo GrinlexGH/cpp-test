@@ -16,7 +16,7 @@ if(WIN32 AND TARGET Win32xx::Win32xx)
 
     target_precompile_headers(${CURRENT_TARGET_NAME} PRIVATE stdafx.h)
 
-    target_link_libraries(${CURRENT_TARGET_NAME} PRIVATE
+    deps_target_link_and_copy_runtime(${CURRENT_TARGET_NAME} PRIVATE
         Comctl32
         Win32xx::Win32xx
     )

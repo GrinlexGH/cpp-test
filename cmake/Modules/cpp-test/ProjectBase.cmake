@@ -12,6 +12,16 @@ function(add_executable_)
         add_executable(${NAME} ${SOURCES})
     endif()
 
+    set_target_properties(
+        ${NAME}
+        PROPERTIES
+        PDB_OUTPUT_DIRECTORY "${CMAKE_PDB_OUTPUT_DIRECTORY}/${NAME}"
+        COMPILE_PDB_OUTPUT_DIRECTORY "${CMAKE_COMPILE_PDB_OUTPUT_DIRECTORY}/${NAME}"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${NAME}"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${NAME}"
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/${NAME}"
+    )
+
     foreach(source IN LISTS SOURCES)
         cmake_path(GET source PARENT_PATH source_directory)
         source_group("Source Files/${source_directory}" FILES "${source}")
