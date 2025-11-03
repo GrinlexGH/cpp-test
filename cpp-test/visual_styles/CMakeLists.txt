@@ -24,7 +24,7 @@ if(WIN32 AND TARGET Qt6::Core AND TARGET Qt6::Widgets)
                 --verbose 0
                 --no-compiler-runtime
                 --no-system-d3d-compiler
-                "--$<IF:$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>,debug,release>"
+                "--$<IF:$<OR:$<CONFIG:Debug>>,debug,release>"
                 $<TARGET_FILE:${CURRENT_TARGET_NAME}>
         COMMENT "Deploying Qt libraries using windeployqt for compilation target '${CURRENT_TARGET_NAME}' ..."
     )
