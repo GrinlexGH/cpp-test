@@ -68,6 +68,7 @@ find_package(SDL3_image)
 find_package(VulkanHeaders)
 find_package(VulkanMemoryAllocator)
 find_package(VulkanMemoryAllocator-Hpp)
+find_package(Qt6 COMPONENTS Core Widgets)
 
 # Third party static libraries
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
