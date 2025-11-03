@@ -1,0 +1,5 @@
+build/
+**/build/
+third_party/bin/
+.vscode/settings.json
+.PVS-Studio/
