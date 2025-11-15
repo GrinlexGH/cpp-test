@@ -33,6 +33,20 @@ deps_add_cmake_project(
     "-DSDLIMAGE_XCF=OFF -DSDLIMAGE_XPM=OFF -DSDLIMAGE_XV=OFF -DSDLIMAGE_WEBP=OFF"
 )
 
+deps_add_cmake_project(
+    "wxWidgets" BUILD_DEBUG BUILD_FOLDER "cmake-build"
+    CMAKE_ARGS
+    "-DwxBUILD_SHARED=OFF -DwxBUILD_INSTALL=ON"
+)
+deps_add_cmake_project(
+    "benchmark" BUILD_DEBUG
+    CMAKE_ARGS
+    "-DBENCHMARK_ENABLE_TESTING=OFF -DBENCHMARK_ENABLE_WERROR=OFF -DBENCHMARK_ENABLE_LTO=ON"
+)
+deps_add_cmake_project("googletest" BUILD_DEBUG INSTALL_SUBDIR "GTest")
+deps_add_cmake_project("nowide" BUILD_DEBUG)
+deps_add_cmake_project("glm" BUILD_DEBUG CMAKE_ARGS "-DGLM_ENABLE_CXX_20=ON")
+
 deps_add_header_only("tinyobjloader" HEADERS "tiny_obj_loader.h")
 deps_add_header_only("simple_term_colors" HEADERS "include/stc.hpp")
 
@@ -61,31 +75,16 @@ deps_build_all()
 # Find these libraries
 include_directories(SYSTEM "${DEPS_HEADER_ONLY_INCLUDE_DIR}")
 
-find_package(SteamworksSDK)
-find_package(Win32xx)
-find_package(SDL3)
-find_package(SDL3_image)
-find_package(VulkanHeaders)
-find_package(VulkanMemoryAllocator)
-find_package(VulkanMemoryAllocator-Hpp)
-find_package(Qt6 COMPONENTS Core Widgets)
-find_package(wxWidgets)
-
-# Third party static libraries
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
-add_subdirectory(third_party/src/nowide EXCLUDE_FROM_ALL SYSTEM)
-set_target_properties(nowide PROPERTIES FOLDER "third_party")
-
-set(GLM_ENABLE_CXX_20 ON)
-add_subdirectory(third_party/src/glm EXCLUDE_FROM_ALL SYSTEM)
-set_target_properties(glm PROPERTIES FOLDER "third_party")
-
-set(BENCHMARK_ENABLE_TESTING OFF)
-set(BENCHMARK_ENABLE_INSTALL OFF)
-set(BENCHMARK_INSTALL_DOCS OFF)
-add_subdirectory(third_party/src/benchmark EXCLUDE_FROM_ALL SYSTEM)
-set_target_properties(benchmark benchmark_main PROPERTIES FOLDER "third_party")
-
-add_subdirectory(third_party/src/googletest EXCLUDE_FROM_ALL SYSTEM)
-set_target_properties(gtest gtest_main gmock gmock_main PROPERTIES FOLDER "third_party")
+find_package(SteamworksSDK OPTIONAL)
+find_package(Win32xx OPTIONAL)
+find_package(SDL3 OPTIONAL)
+find_package(SDL3_image OPTIONAL)
+find_package(VulkanHeaders OPTIONAL)
+find_package(VulkanMemoryAllocator OPTIONAL)
+find_package(VulkanMemoryAllocator-Hpp OPTIONAL)
+find_package(Qt6 OPTIONAL COMPONENTS Core Widgets)
+find_package(wxWidgets CONFIG OPTIONAL) # FindwxWidgets module cant handle clang...
+find_package(nowide OPTIONAL)
+find_package(glm OPTIONAL)
+find_package(benchmark OPTIONAL)
+find_package(GTest OPTIONAL)

@@ -14,28 +14,28 @@ endif()
 
 # Choosing a runtime
 if(IS_MSVC_LIKE)
-    set(SKYLABS_STD_RUNTIME "vcruntime")
+    set(STD_RUNTIME "vcruntime")
 elseif(IS_GNU_LIKE)
-    set(SKYLABS_STD_RUNTIME "libstdcxx")
+    set(STD_RUNTIME "libstdcxx")
 
     # Use libc++ on linux or msys2 just because I can
-    if(SKYLABS_TRY_TO_USE_LIBCXX AND (CMAKE_CXX_COMPILER_ID STREQUAL "Clang") AND (UNIX OR (WIN32 AND MINGW)))
-        set(SKYLABS_STD_RUNTIME "libcxx")
+    if((CMAKE_CXX_COMPILER_ID STREQUAL "Clang") AND (UNIX OR (WIN32 AND MINGW)))
+        set(STD_RUNTIME "libcxx")
     endif()
 
     # Use vcruntime for non mingw clang on windows
     if((WIN32 AND NOT MINGW) AND (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
-        set(SKYLABS_STD_RUNTIME "vcruntime")
+        set(STD_RUNTIME "vcruntime")
     endif()
 endif()
 
 # Subdir to separate runtimes
-set(DEPS_OUT_SUBDIR "${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}/${SKYLABS_STD_RUNTIME}/$ENV{DEPS_OUT_SUBDIR}")
+set(DEPS_OUT_SUBDIR "${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}/${STD_RUNTIME}/$ENV{DEPS_OUT_SUBDIR}")
 
 include(Deps)
 
 # Build with libcxx
-if(SKYLABS_STD_RUNTIME STREQUAL "libcxx")
+if(STD_RUNTIME STREQUAL "libcxx")
     if(NOT ANDROID) # Android SDK doesn't support explicitly setting lld
         set(CMAKE_LINKER_TYPE LLD)
     endif()

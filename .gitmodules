@@ -31,3 +31,6 @@
 [submodule "third_party/src/VulkanMemoryAllocator-Hpp"]
 	path = third_party/src/VulkanMemoryAllocator-Hpp
 	url = https://github.com/YaaZ/VulkanMemoryAllocator-Hpp.git
+[submodule "third_party/src/wxWidgets"]
+	path = third_party/src/wxWidgets
+	url = https://github.com/wxWidgets/wxWidgets

@@ -1,5 +1,10 @@
 set(CURRENT_TARGET_NAME bitfields)
 
+if(NOT (TARGET benchmark::benchmark))
+    message(STATUS "[${CURRENT_TARGET_NAME}] skipped.")
+    return()
+endif()
+
 set(SOURCES
     main.cpp
 )
