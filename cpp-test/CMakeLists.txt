@@ -2,8 +2,9 @@ set(PROJECTS
     bitfields
     fast
     locales
-    visual_styles
+    qt-test
     win32xx
+    wxwidgets-test
 )
 
 set(ROOT_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/.output/$<CONFIG>)

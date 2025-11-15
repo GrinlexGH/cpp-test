@@ -1,5 +1,5 @@
 if(WIN32 AND TARGET Qt6::Core AND TARGET Qt6::Widgets)
-    set(CURRENT_TARGET_NAME visual_styles)
+    set(CURRENT_TARGET_NAME qt-test)
 
     set(SOURCES
         main.cpp

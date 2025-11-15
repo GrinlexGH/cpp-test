@@ -69,6 +69,7 @@ find_package(VulkanHeaders)
 find_package(VulkanMemoryAllocator)
 find_package(VulkanMemoryAllocator-Hpp)
 find_package(Qt6 COMPONENTS Core Widgets)
+find_package(wxWidgets)
 
 # Third party static libraries
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
