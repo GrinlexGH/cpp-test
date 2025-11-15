@@ -8,7 +8,7 @@ if(WIN32 AND TARGET Qt6::Core AND TARGET Qt6::Widgets)
 
     add_executable_(${CURRENT_TARGET_NAME} WIN32 ${SOURCES})
 
-    deps_target_link_and_copy_runtime(${CURRENT_TARGET_NAME} PRIVATE
+    deps_target_link_libraries(${CURRENT_TARGET_NAME} PRIVATE
         ComCtl32 Dwmapi
         SDL3::SDL3
         Qt6::Core

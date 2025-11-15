@@ -9,7 +9,7 @@ if(TARGET wxWidgets::wxWidgets)
 
     target_compile_definitions(${CURRENT_TARGET_NAME} PRIVATE "WX_PRECOMP")
 
-    deps_target_link_and_copy_runtime(${CURRENT_TARGET_NAME} PRIVATE
+    deps_target_link_libraries(${CURRENT_TARGET_NAME} PRIVATE
         Comctl32
         wxWidgets::wxWidgets
     )
