@@ -3,7 +3,7 @@ set(PROJECTS
     fast
     locales
     qt-test
-    win32xx
+    win32xx-test
     wxwidgets-test
 )
 
