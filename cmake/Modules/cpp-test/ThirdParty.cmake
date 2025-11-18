@@ -36,7 +36,7 @@ deps_add_cmake_project(
 deps_add_cmake_project(
     "wxWidgets" BUILD_DEBUG BUILD_FOLDER "cmake-build"
     CMAKE_ARGS
-    "-DwxBUILD_SHARED=OFF -DwxBUILD_INSTALL=ON"
+    "-DwxBUILD_SHARED=OFF -DwxBUILD_INSTALL=ON -DwxBUILD_INSTALL_PDB=ON"
 )
 deps_add_cmake_project(
     "benchmark" BUILD_DEBUG
